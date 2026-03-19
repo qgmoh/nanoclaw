@@ -157,7 +157,10 @@ function buildVolumeMounts(
       '.credentials.json',
     );
     if (fs.existsSync(hostCredentials)) {
-      fs.copyFileSync(hostCredentials, path.join(groupSessionsDir, '.credentials.json'));
+      fs.copyFileSync(
+        hostCredentials,
+        path.join(groupSessionsDir, '.credentials.json'),
+      );
     }
   }
 

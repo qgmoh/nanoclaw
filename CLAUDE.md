@@ -32,6 +32,25 @@ Single Node.js process with skill-based channel system. Channels (WhatsApp, Tele
 | `/qodo-pr-resolver` | Fetch and fix Qodo PR review issues interactively or in batch |
 | `/get-qodo-rules` | Load org- and repo-level coding rules from Qodo before code tasks |
 
+## STATE System (for multi-step tasks)
+
+Use STATE for any task with 2+ steps. Saves ~82% tokens and enables resumption.
+
+State directory: `/home/qgmoh/projects/salad/state/`
+Tools: `/home/qgmoh/projects/salad/state/tools/state_manager.py`
+
+```bash
+python3 -c "
+import sys; sys.path.insert(0, '/home/qgmoh/projects/salad/state/tools')
+from state_manager import initial_state, save_state
+state = initial_state('task-id', 'Goal description')
+state['i'] = 'First step'
+save_state(state)
+"
+```
+
+After each step: load state, update `s` (done) and `i` (next), save. Set `i` to `"done"` when complete.
+
 ## Development
 
 Run commands directly—don't tell the user to run them.
