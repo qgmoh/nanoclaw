@@ -132,6 +132,38 @@ p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 
 ---
 
+## How Context is Injected (Wiring)
+
+The system is wired at two levels so agents receive context automatically without needing to load files themselves.
+
+### Container agents (Amy, Andy, and all group agents)
+
+`src/memory-loader.ts` runs in the orchestrator before every container launch:
+
+1. Reads `groups/{folder}/memory/INDEX.md` from the host filesystem
+2. Checks `groups/{folder}/state/` for the most recently modified JSON file where `i != "done"`
+3. Prepends both as a `<context>` block to the agent prompt
+
+The agent receives INDEX.md and any active STATE automatically. It then loads 1-2 relevant memory files itself based on INDEX guidance.
+
+### Claude Code sessions on the host
+
+Two mechanisms mirror the same behaviour for direct Claude Code sessions:
+
+1. **`~/CLAUDE.md`** — loaded every session; instructs Claude Code to check STATE at session start, create STATE at the start of multi-step tasks, and harvest to memory on completion
+2. **`UserPromptSubmit` hook** in `~/.claude/settings.local.json` — fires on every message; scans all project state directories for active STATE (modified within last 14 days) and surfaces them as an `<active_state>` block
+
+### State directories
+
+| Context | State directory |
+|---------|----------------|
+| Container agents | `/workspace/group/state/` (maps to `groups/{name}/state/` on host) |
+| Claude Code — nanoclaw work | `/home/qgmoh/nanoclaw/groups/main/state/` |
+| Claude Code — herv3 work | `/home/qgmoh/projects/herv3/.claude/state/` |
+| Claude Code — salad work | `/home/qgmoh/projects/salad/state/` |
+
+---
+
 ## Session Protocol
 
 ### Step 1 — Session Start
