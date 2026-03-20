@@ -32,6 +32,60 @@ Single Node.js process with skill-based channel system. Channels (WhatsApp, Tele
 | `/qodo-pr-resolver` | Fetch and fix Qodo PR review issues interactively or in batch |
 | `/get-qodo-rules` | Load org- and repo-level coding rules from Qodo before code tasks |
 
+## Memory Protocol (for all agents)
+
+Each agent group has a `memory/` folder inside its group directory. Agents follow this protocol:
+
+### Session Start
+
+1. Load `memory/INDEX.md` at the start of every session (~20 tokens)
+2. Read the INDEX to see what files exist and when to load each
+3. Load 1-2 relevant files based on the task (~100-200 tokens each)
+4. If resuming a task, also load the relevant STATE file (~100 tokens)
+
+### During Work
+
+- Use STATE for progress tracking on any task with 2+ steps
+- NEVER auto-load conversation logs — they are archives for manual search only
+
+### Task Complete
+
+When STATE `i` is set to `"done"`:
+1. Extract 1-3 new facts learned during the task
+2. Write them into the most relevant memory file
+3. If a new memory file was created, add it to `INDEX.md`
+4. Keep every memory file under 50 lines
+
+### Memory File Standard Structure
+
+```
+groups/{name}/memory/
+├── INDEX.md        # Always loaded — lists files + when to load each (~20 lines)
+├── preferences.md  # User communication style, formatting, working preferences
+├── projects.md     # Active projects with brief context
+├── contacts.md     # Key people the agent should know
+└── context.md      # Environment facts: paths, servers, tools
+```
+
+### Token Budget per Session
+
+| Item | Tokens |
+|------|--------|
+| INDEX.md | ~20 |
+| 1-2 memory files | ~200-400 |
+| STATE (if resuming) | ~100 |
+| **Total overhead** | **~320-520** |
+
+### Adding a New Agent
+
+1. Create `groups/{name}/memory/` folder
+2. Create `INDEX.md` listing the initial files
+3. Create `preferences.md`, `projects.md`, `context.md` with known facts
+4. Add Memory Protocol section to the agent's `CLAUDE.md`
+5. Point memory paths to `/workspace/group/memory/` in the container
+
+---
+
 ## STATE System (for multi-step tasks)
 
 Use STATE for any task with 2+ steps. Saves ~82% tokens and enables resumption.

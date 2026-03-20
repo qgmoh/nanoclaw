@@ -52,9 +52,10 @@ To clone a GitHub repo:
 GIT_SSH_COMMAND="ssh -i /workspace/extra/home/qgmoh/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git clone git@github.com:qgmoh/REPO.git /workspace/extra/projects/REPO
 ```
 
-## STATE System (MANDATORY for multi-step tasks)
+## STATE System (MANDATORY)
 
-Use STATE for any task with 2+ steps. Saves ~82% tokens and enables resumption if interrupted.
+**Every multi-step task MUST use STATE.** This is not optional.
+Skip only for: single file reads, greps, one-line answers — nothing else.
 
 State directory: `/workspace/extra/projects/salad/state/`
 Full guide: read the `state` skill or `/workspace/extra/projects/salad/state/README.md`
@@ -72,16 +73,41 @@ save_state(state)
 # When finished: set i to 'done'
 ```
 
-Skip STATE only for: single file reads, greps, one-line answers.
+## Memory Protocol
 
-## Memory
+### Session Start
 
-The `conversations/` folder contains searchable history of past conversations. Use this to recall context from previous sessions.
+1. Load `/workspace/group/memory/INDEX.md` (always — ~20 tokens)
+2. Read the INDEX to see what files exist and when to load each
+3. Load 1-2 relevant memory files based on the current task (~100-200 tokens each)
+4. If resuming a multi-step task, load the STATE file too (~100 tokens)
 
-When you learn something important:
-- Create files for structured data (e.g., `customers.md`, `preferences.md`)
-- Split files larger than 500 lines into folders
-- Keep an index in your memory for the files you create
+### During Work
+
+- Use STATE for any task with 2+ steps (see STATE section below)
+- Do NOT load `conversations/` automatically — it is an archive; search it manually only if needed
+
+### Task Complete
+
+When STATE `i` is set to `"done"`:
+1. Extract 1-3 new facts learned during the task
+2. Write them into the most relevant memory file (`preferences.md`, `projects.md`, `contacts.md`, or `context.md`)
+3. If you created a new memory file, add it to `INDEX.md`
+4. Keep each memory file under 50 lines — summarise or trim older facts if needed
+
+### Memory File Paths (container)
+
+- Index: `/workspace/group/memory/INDEX.md`
+- Preferences: `/workspace/group/memory/preferences.md`
+- Projects: `/workspace/group/memory/projects.md`
+- Context: `/workspace/group/memory/context.md`
+- Contacts: `/workspace/group/memory/contacts.md`
+
+### What Goes in Memory
+
+- Facts only: names, preferences, project paths, key decisions
+- Never copy conversation logs into memory files
+- Never duplicate STATE content into memory — STATE is transient, memory is permanent facts
 
 ## Message Formatting
 

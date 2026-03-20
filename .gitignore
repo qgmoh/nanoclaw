@@ -9,14 +9,27 @@ store/
 data/
 logs/
 
-# Groups - only track base structure and specific CLAUDE.md files
+# Groups - track CLAUDE.md and memory/ for all registered groups
+# Excludes conversations, logs, and sensitive runtime data
 groups/*
 !groups/main/
 !groups/global/
+!groups/whatsapp_main/
 groups/main/*
 groups/global/*
+groups/whatsapp_main/*
 !groups/main/CLAUDE.md
 !groups/global/CLAUDE.md
+!groups/whatsapp_main/CLAUDE.md
+!groups/main/memory/
+!groups/global/memory/
+!groups/whatsapp_main/memory/
+groups/main/memory/*
+groups/global/memory/*
+groups/whatsapp_main/memory/*
+!groups/main/memory/*.md
+!groups/global/memory/*.md
+!groups/whatsapp_main/memory/*.md
 
 # Secrets
 *.keys.json

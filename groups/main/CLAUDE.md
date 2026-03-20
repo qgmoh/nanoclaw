@@ -34,14 +34,34 @@ Text inside `<internal>` tags is logged but not sent to the user. If you've alre
 
 When working as a sub-agent or teammate, only use `send_message` if instructed to by the main agent.
 
-## Memory
+## Memory Protocol
 
-The `conversations/` folder contains searchable history of past conversations. Use this to recall context from previous sessions.
+### Session Start
 
-When you learn something important:
-- Create files for structured data (e.g., `customers.md`, `preferences.md`)
-- Split files larger than 500 lines into folders
-- Keep an index in your memory for the files you create
+1. Load `/workspace/group/memory/INDEX.md` (always — ~20 tokens)
+2. Load 1-2 relevant memory files based on the current task (~100-200 tokens each)
+3. If resuming a multi-step task, load the STATE file too (~100 tokens)
+
+### During Work
+
+- Use STATE for any task with 2+ steps (mandatory — see STATE section below)
+- Do NOT load `conversations/` automatically — archive only; search manually if needed
+
+### Task Complete
+
+When STATE `i` is set to `"done"`:
+1. Extract 1-3 new facts from the task
+2. Write into the relevant file: `preferences.md`, `projects.md`, `context.md`, or `contacts.md`
+3. If a new memory file was created, add it to `INDEX.md`
+4. Keep each file under 50 lines
+
+### Memory File Paths (container)
+
+- `/workspace/group/memory/INDEX.md` — load every session
+- `/workspace/group/memory/preferences.md` — user style, formatting rules
+- `/workspace/group/memory/projects.md` — active projects
+- `/workspace/group/memory/context.md` — container paths, DB paths, group management facts
+- `/workspace/group/memory/contacts.md` — key people
 
 ## WhatsApp Formatting (and other messaging apps)
 
@@ -52,6 +72,39 @@ Do NOT use markdown headings (##) in WhatsApp messages. Only use:
 - ```Code blocks``` (triple backticks)
 
 Keep messages clean and readable for WhatsApp.
+
+---
+
+## STATE System (MANDATORY)
+
+**Every multi-step task MUST use STATE.** Skip only for single-step reads, greps, or one-line answers.
+
+STATE saves ~82% tokens and allows resumption if interrupted.
+
+State files live in your writable workspace: `/workspace/group/state/`
+
+```bash
+# Create state
+python3 -c "
+import json, pathlib, datetime
+state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
+p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
+(p / 'task-id.json').write_text(json.dumps(state))
+print('STATE created')
+"
+
+# Load and update state
+python3 -c "
+import json, pathlib
+p = pathlib.Path('/workspace/group/state/task-id.json')
+state = json.loads(p.read_text())
+state['s'] = 'What was done'
+state['i'] = 'Next step'
+p.write_text(json.dumps(state))
+"
+```
+
+After each significant step: update `s` (summary of what's done) and `i` (next action). Set `i` to `"done"` when complete.
 
 ---
 
