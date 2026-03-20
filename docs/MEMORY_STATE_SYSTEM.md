@@ -117,27 +117,16 @@ STATE is a compact JSON file. Each field has a 300-character limit.
 | `i` | Next action / `"done"` | 300 chars |
 | `p` | Extra params dict | flexible |
 
-### Amy (whatsapp_main) — STATE location
+### All agents — STATE location
 
-```bash
-# State dir: /workspace/extra/projects/salad/state/
-python3 -c "
-import sys; sys.path.insert(0, '/workspace/extra/projects/salad/state/tools')
-from state_manager import initial_state, save_state
-state = initial_state('my-task', 'Goal here')
-state['i'] = 'First step'
-save_state(state)
-"
-```
-
-### Andy (main) — STATE location (local to container)
+State lives at `/workspace/group/state/` for every agent. This maps to `groups/{name}/state/` on the host and is injected automatically into each session by the orchestrator.
 
 ```bash
 python3 -c "
 import json, pathlib
 state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
-(p / 'task-id.json').write_text(json.dumps(state))
+(p / 'task-id.json').write_text(json.dumps(state, indent=2))
 "
 ```
 
@@ -217,7 +206,9 @@ This fact is now permanent across all future sessions — no need to ask Nick ag
 - [ ] Create `projects.md` with known active projects
 - [ ] Create `context.md` with container paths, env facts
 - [ ] Create `contacts.md` with key people (can start minimal)
-- [ ] Create or update agent's `CLAUDE.md` with Memory Protocol section
+- [ ] Create state folder: `groups/{name}/state/` with a `.gitkeep`
+- [ ] Create or update agent's `CLAUDE.md` with Memory Protocol and STATE sections
+- [ ] Update `.gitignore` to track `CLAUDE.md`, `memory/*.md`, and `state/.gitkeep`
 - [ ] Point memory paths to `/workspace/group/memory/` in the container
 - [ ] Verify token estimates: count lines × ~20 chars × 0.25 tokens/char
 

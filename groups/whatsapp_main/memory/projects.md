@@ -7,7 +7,6 @@
 - Stack: FastAPI + Python 3.13+, Docker
 - Function 1: WhatsApp webhook → booking form parser (38 fields) → Excel/Google Sheets
 - Function 2: Excel data → PowerPoint slide automation (category/marker/cell modes)
-- STATE tools: `/workspace/extra/projects/salad/state/tools/state_manager.py`
 - Dashboard: `http://localhost:8050/`
 
 ## herv3 (EHR System)
@@ -25,4 +24,3 @@
 - Function: Multi-channel personal AI assistant (WhatsApp, Telegram, Slack, etc.)
 - Groups run in isolated containers with per-group CLAUDE.md and memory
 - Amy = whatsapp_main group agent; Andy = main group agent (elevated privileges)
-- State dir: `/workspace/extra/projects/salad/state/`

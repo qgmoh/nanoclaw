@@ -60,6 +60,7 @@ import {
 import { startSchedulerLoop } from './task-scheduler.js';
 import { Channel, NewMessage, RegisteredGroup } from './types.js';
 import { logger } from './logger.js';
+import { buildMemoryContext } from './memory-loader.js';
 
 // Re-export for backwards compatibility during refactor
 export { escapeXml, formatMessages } from './router.js';
@@ -310,11 +311,16 @@ async function runAgent(
       }
     : undefined;
 
+  // Prepend memory + active STATE context so agents receive their full
+  // context automatically without needing to load files themselves.
+  const memoryContext = buildMemoryContext(group.folder);
+  const enrichedPrompt = memoryContext ? memoryContext + prompt : prompt;
+
   try {
     const output = await runContainerAgent(
       group,
       {
-        prompt,
+        prompt: enrichedPrompt,
         sessionId,
         groupFolder: group.folder,
         chatJid,

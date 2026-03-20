@@ -25,3 +25,5 @@
 - Available groups list: `/workspace/ipc/available_groups.json`
 - Andy = main group agent with isMain:true (no trigger required, elevated privileges)
 - Amy = whatsapp_main group agent
+- Memory+STATE system wired in src/memory-loader.ts — host injects INDEX.md + active STATE into every prompt
+- All agents use /workspace/group/state/ for STATE (standardized Mar 20 2026)

@@ -120,7 +120,8 @@ GROUP_FOLDER="telegram_bella"
 TRIGGER="@Bella"
 PURPOSE="Manages project updates and daily standups"
 
-mkdir -p "$GROUPS_DIR/$GROUP_FOLDER/memory"
+mkdir -p "$GROUPS_DIR/$GROUP_FOLDER/memory" "$GROUPS_DIR/$GROUP_FOLDER/state"
+touch "$GROUPS_DIR/$GROUP_FOLDER/state/.gitkeep"
 ```
 
 ### 3a — INDEX.md
@@ -383,6 +384,9 @@ groups/${GROUP_FOLDER}/*
 !groups/${GROUP_FOLDER}/memory/
 groups/${GROUP_FOLDER}/memory/*
 !groups/${GROUP_FOLDER}/memory/*.md
+!groups/${GROUP_FOLDER}/state/
+groups/${GROUP_FOLDER}/state/*
+!groups/${GROUP_FOLDER}/state/.gitkeep
 ENDOFFILE
 
 echo "gitignore updated"
@@ -410,12 +414,14 @@ cd "$NANOCLAW_DIR"
 git add \
   .gitignore \
   "groups/$GROUP_FOLDER/CLAUDE.md" \
-  "groups/$GROUP_FOLDER/memory/"
+  "groups/$GROUP_FOLDER/memory/" \
+  "groups/$GROUP_FOLDER/state/.gitkeep"
 
 git commit -m "feat: add $GROUP_FOLDER agent ($NAME_TITLE) with memory system
 
 - CLAUDE.md with Memory Protocol and STATE mandate
 - memory/INDEX.md, preferences.md, projects.md, context.md, contacts.md
+- state/.gitkeep to track state directory
 - .gitignore updated to track new group
 
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"

@@ -90,16 +90,16 @@ groups/{name}/memory/
 
 Use STATE for any task with 2+ steps. Saves ~82% tokens and enables resumption.
 
-State directory: `/home/qgmoh/projects/salad/state/`
-Tools: `/home/qgmoh/projects/salad/state/tools/state_manager.py`
+State directory: `groups/{name}/state/` (per-group, maps to `/workspace/group/state/` in container)
+
+The host injects memory files and any active STATE into every container prompt automatically via `src/memory-loader.ts`. Agents see this in a `<context>` block at the start of each session.
 
 ```bash
 python3 -c "
-import sys; sys.path.insert(0, '/home/qgmoh/projects/salad/state/tools')
-from state_manager import initial_state, save_state
-state = initial_state('task-id', 'Goal description')
-state['i'] = 'First step'
-save_state(state)
+import json, pathlib
+state = {'v':1,'t':'task-id','g':'Goal description','s':'','i':'First step','p':{}}
+p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
+(p / 'task-id.json').write_text(json.dumps(state, indent=2))
 "
 ```
 

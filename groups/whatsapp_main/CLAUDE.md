@@ -57,18 +57,15 @@ When STATE `i` is set to `"done"`:
 **Every multi-step task MUST use STATE.** This is not optional.
 Skip only for: single file reads, greps, one-line answers — nothing else.
 
-- State files: `/workspace/extra/projects/salad/state/`
-- Tools: `/workspace/extra/projects/salad/state/tools/state_manager.py`
-- Templates: `/workspace/extra/projects/salad/state/templates/`
-- Full guide: read the `state` skill (`/state`)
+State directory: `/workspace/group/state/`
+Full guide: read the `state` skill (`/state`)
 
 ```bash
 python3 -c "
-import sys; sys.path.insert(0, '/workspace/extra/projects/salad/state/tools')
-from state_manager import initial_state, save_state
-state = initial_state('my-task', 'Goal here')
-state['i'] = 'First step'
-save_state(state)
+import json, pathlib
+state = {'v':1,'t':'my-task','g':'Goal here','s':'','i':'First step','p':{}}
+p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
+(p / 'my-task.json').write_text(json.dumps(state, indent=2))
 "
 ```
 

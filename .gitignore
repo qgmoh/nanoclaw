@@ -31,6 +31,14 @@ groups/whatsapp_main/memory/*
 !groups/global/memory/*.md
 !groups/whatsapp_main/memory/*.md
 
+# State dirs — track the directory but not transient task JSON files
+!groups/main/state/
+!groups/whatsapp_main/state/
+groups/main/state/*
+groups/whatsapp_main/state/*
+!groups/main/state/.gitkeep
+!groups/whatsapp_main/state/.gitkeep
+
 # Secrets
 *.keys.json
 .env

@@ -57,17 +57,15 @@ GIT_SSH_COMMAND="ssh -i /workspace/extra/home/qgmoh/.ssh/id_ed25519 -o StrictHos
 **Every multi-step task MUST use STATE.** This is not optional.
 Skip only for: single file reads, greps, one-line answers — nothing else.
 
-State directory: `/workspace/extra/projects/salad/state/`
-Full guide: read the `state` skill or `/workspace/extra/projects/salad/state/README.md`
+State directory: `/workspace/group/state/`
+Full guide: read the `state` skill (`/state`)
 
 ```bash
-# Create state
 python3 -c "
-import sys; sys.path.insert(0, '/workspace/extra/projects/salad/state/tools')
-from state_manager import initial_state, save_state
-state = initial_state('my-task', 'Goal here')
-state['i'] = 'First step'
-save_state(state)
+import json, pathlib
+state = {'v':1,'t':'my-task','g':'Goal here','s':'','i':'First step','p':{}}
+p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
+(p / 'my-task.json').write_text(json.dumps(state, indent=2))
 "
 # After each step: load state, update s (done) and i (next), save
 # When finished: set i to 'done'

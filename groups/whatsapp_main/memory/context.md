@@ -25,10 +25,9 @@ GIT_SSH_COMMAND="ssh -i /workspace/extra/home/qgmoh/.ssh/id_ed25519 -o StrictHos
 
 ## STATE System
 
-- State directory: `/workspace/extra/projects/salad/state/`
-- Tools: `/workspace/extra/projects/salad/state/tools/state_manager.py`
-- Full guide: `/workspace/extra/projects/salad/state/README.md`
+- State directory: `/workspace/group/state/`
 - Use STATE for every multi-step task (skip only for single reads/greps)
+- Host injects active STATE into `<context>` block at session start automatically
 
 ## NanoClaw Architecture
 
