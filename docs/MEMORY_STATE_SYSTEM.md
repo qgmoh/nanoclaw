@@ -91,44 +91,72 @@ Each fact file is plain markdown under 50 lines. Use `##` headings to section it
 
 ---
 
-## STATE File Format
+## STATE File Format (v2)
 
-STATE is a compact JSON file. Each field has a 300-character limit.
+STATE is a compact JSON file. Each text field has a 300-character limit. **v1 files are not supported — migrate to v2.**
 
 ```json
 {
-  "v": 1,
+  "v": 2,
   "t": "task-id",
+  "proj": "nanoclaw",
   "g": "Goal: what you are achieving",
   "s": "Summary: what has been completed so far",
   "i": "Next action to take (or 'done' when complete)",
+  "created": "2026-03-20T10:00:00Z",
+  "updated": "2026-03-20T10:05:00Z",
   "p": {
     "optional": "extra key-value context"
-  }
+  },
+  "k": {"tot": 0, "in": 0, "out": 0}
 }
 ```
 
 | Field | Meaning | Limit |
 |-------|---------|-------|
-| `v` | Schema version | always 1 |
+| `v` | Schema version — always 2 | — |
 | `t` | Task identifier (= filename) | kebab-case |
+| `proj` | Project: nanoclaw, herv3, salad | — |
 | `g` | Goal description | 300 chars |
 | `s` | Summary of work done | 300 chars |
 | `i` | Next action / `"done"` | 300 chars |
+| `created` | ISO timestamp, set once at creation | — |
+| `updated` | ISO timestamp, update on every save | — |
 | `p` | Extra params dict | flexible |
+| `k` | Token counter — agent updates each step | `tot`, `in`, `out` |
+
+**Token counter (`k`):** The agent increments `k.in` (input tokens), `k.out` (output tokens), and `k.tot` (total) at each step. This is stored in STATE and never sent to Claude — strip `k` before injecting into prompts if context size is a concern, but the cost is only ~10 tokens.
 
 ### All agents — STATE location
 
 State lives at `/workspace/group/state/` for every agent. This maps to `groups/{name}/state/` on the host and is injected automatically into each session by the orchestrator.
 
 ```bash
+# Create via state_manager.py (preferred)
+python3 /workspace/project/container/skills/state/state_manager.py init task-id "Goal here" nanoclaw
+
+# Or inline
 python3 -c "
 import json, pathlib
-state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal here','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
-(p / 'task-id.json').write_text(json.dumps(state, indent=2))
+(p / 'task-id.json').write_text(json.dumps(s))
 "
 ```
+
+### Templates
+
+Pre-built v2 STATE templates live in `groups/{name}/state/templates/`. Available templates:
+
+| Template | Use case |
+|----------|----------|
+| `generic-task.json` | Any task without a specific pattern |
+| `group-management.json` | Register, remove, or modify nanoclaw groups |
+| `code-change.json` | Edit files in a project (herv3, salad, nanoclaw) |
+| `investigation.json` | Debug or diagnose an issue |
+| `scheduled-task.json` | Create or modify a scheduled/cron task |
 
 ---
 
@@ -151,7 +179,7 @@ The agent receives INDEX.md and any active STATE automatically. It then loads 1-
 Two mechanisms mirror the same behaviour for direct Claude Code sessions:
 
 1. **`~/CLAUDE.md`** — loaded every session; instructs Claude Code to check STATE at session start, create STATE at the start of multi-step tasks, and harvest to memory on completion
-2. **`UserPromptSubmit` hook** in `~/.claude/settings.local.json` — fires on every message; scans all project state directories for active STATE (modified within last 14 days) and surfaces them as an `<active_state>` block
+2. **`UserPromptSubmit` hook** in `~/.claude/settings.local.json` — fires on every message; scans all project state directories for active STATE (modified within last 15 days, configurable via `ACTIVE_WINDOW` in settings.local.json) and surfaces them as an `<active_state>` block
 
 ### State directories
 

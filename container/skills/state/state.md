@@ -1,8 +1,8 @@
-# STATE System — Low-Token Task Resumption
+# STATE v2 — Low-Token Task Resumption
 
-Use STATE for any multi-step task. It saves ~82% tokens by storing minimal progress JSON instead of replaying full conversation history.
+Use STATE for any task with 2+ steps. Saves ~82% tokens vs replaying full conversation history.
 
-The host automatically injects your memory files and any active STATE into every session — you will see them in a `<context>` block at the start of each prompt. If an active STATE is present, resume from the `"i"` field immediately.
+The host injects active STATE into every session via `<context>` block. If present, **resume from `i` immediately**.
 
 ## State Directory
 
@@ -10,96 +10,118 @@ The host automatically injects your memory files and any active STATE into every
 /workspace/group/state/
 ```
 
-State files: `{task-id}.json` — one file per task, lives here for all agents.
-
-## STATE Format
+## STATE v2 Format
 
 ```json
 {
-  "v": 1,
+  "v": 2,
   "t": "task-id",
-  "g": "Goal (≤300 chars)",
-  "s": "Summary of work done (≤300 chars)",
-  "i": "Next action to take (≤300 chars)",
-  "p": { "any": "params needed" }
+  "proj": "nanoclaw",
+  "g": "Goal ≤300 chars",
+  "s": "Summary of work done ≤300 chars",
+  "i": "Next action ≤300 chars",
+  "created": "2026-03-20T10:00:00Z",
+  "updated": "2026-03-20T10:05:00Z",
+  "p": {},
+  "k": {"tot": 0, "in": 0, "out": 0}
 }
 ```
 
 | Field | Meaning |
 |-------|---------|
-| `v` | Schema version (always 1) |
-| `t` | Task identifier = filename in kebab-case |
+| `v` | Schema version — always 2 |
+| `t` | Task ID = filename (kebab-case) |
+| `proj` | Project: nanoclaw, herv3, salad |
 | `g` | Goal — what you are achieving |
-| `s` | Summary — what has been completed so far |
-| `i` | Next action to take. Set to `"done"` when complete |
-| `p` | Extra key-value context (paths, flags, etc.) |
+| `s` | Summary — what has been completed |
+| `i` | Next action. Set `"done"` when complete |
+| `created` | ISO timestamp, set once at creation |
+| `updated` | ISO timestamp, update on every save |
+| `p` | Extra context (paths, flags, etc.) |
+| `k` | Token counter — update each step: `tot`=total, `in`=input, `out`=output |
 
-## Quick Bash Commands
+## Quick Commands
 
-### Check for existing state
+**Create:**
 ```bash
-cat /workspace/group/state/{task-id}.json 2>/dev/null
+python3 /workspace/project/container/skills/state/state_manager.py init my-task-id "Goal here" nanoclaw
 ```
 
-### Create new state
+**Or inline:**
 ```bash
 python3 -c "
 import json, pathlib
-state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
-(p / 'task-id.json').write_text(json.dumps(state, indent=2))
+(p / 'task-id.json').write_text(json.dumps(s))
 print('STATE created')
 "
 ```
 
-### Update state after completing a step
+**Update after a step:**
 ```bash
 python3 -c "
 import json, pathlib
+from datetime import datetime, timezone
 p = pathlib.Path('/workspace/group/state/task-id.json')
 s = json.loads(p.read_text())
-s['s'] = 'Completed step 1: read config, found issue'
-s['i'] = 'Next: fix the timeout value in settings.py'
-p.write_text(json.dumps(s, indent=2))
+s['s'] = 'Step 1 done: found the issue'
+s['i'] = 'Step 2: fix timeout in settings.py'
+s['k']['tot'] += 800; s['k']['in'] += 200; s['k']['out'] += 600
+s['updated'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+p.write_text(json.dumps(s))
 "
 ```
 
-### Mark task done (triggers memory harvest)
+**Mark done:**
 ```bash
-python3 -c "
-import json, pathlib
-p = pathlib.Path('/workspace/group/state/task-id.json')
-s = json.loads(p.read_text())
-s['s'] = 'All steps complete'
-s['i'] = 'done'
-p.write_text(json.dumps(s, indent=2))
-"
-```
-
-### List all state files
-```bash
-ls /workspace/group/state/*.json 2>/dev/null
+python3 /workspace/project/container/skills/state/state_manager.py done task-id "All steps complete"
 ```
 
 ## Workflow
 
-1. **Session start** → host injects active STATE into `<context>` block automatically
-2. **Resume** → read `i` field and continue from there
-3. **After each step** → update `s` (what was done) and `i` (what's next), save
-4. **When done** → set `i` to `"done"`, then harvest 1-3 facts into memory files
+1. **Session start** → check `<context>` block for active STATE
+2. **Resume** → read `i` and continue from there, do NOT repeat `s`
+3. **After each step** → update `s`, `i`, `k` counters, `updated` timestamp, save
+4. **When done** → set `i = "done"`, then do memory harvest
 
-## When to Use STATE
+## When to Use
 
-- **Use for**: any task with 2+ steps, debugging, implementing features, research across multiple files
-- **Skip for**: single read/grep/one-line answer
+- **Use**: 2+ step tasks, debugging, feature implementation, multi-file changes
+- **Skip**: single read, grep, one-line answer
 
 ## Memory Harvest (when i = "done")
 
-1. Identify 1-3 new facts learned during the task
-2. Write them into the relevant memory file:
-   - `preferences.md` — user style, formatting rules, working preferences
-   - `projects.md` — active projects with context
-   - `context.md` — paths, env facts, server config
-   - `contacts.md` — key people
-3. If a new memory file was created, add it to `INDEX.md`
-4. Keep every memory file under 50 lines — trim stale facts if needed
+Extract 1-3 new facts and write to the relevant memory file:
+
+| File | What goes there |
+|------|----------------|
+| `preferences.md` | User style, formatting rules, working preferences |
+| `projects.md` | Active projects with context |
+| `context.md` | Paths, env facts, server config |
+| `contacts.md` | Key people |
+
+After writing: check the file stays under 50 lines. Add to `INDEX.md` if a new file was created.
+
+## Templates
+
+Pre-built STATE files for common tasks are in `/workspace/group/state/templates/`.
+
+```bash
+# List templates
+ls /workspace/group/state/templates/
+
+# Use a template (copy and fill in your task-id)
+python3 -c "
+import json, pathlib
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+t = json.loads(pathlib.Path('/workspace/group/state/templates/generic-task.json').read_text())
+t['t'] = 'my-actual-task-id'
+t['g'] = 'My actual goal'
+t['created'] = now; t['updated'] = now
+pathlib.Path('/workspace/group/state/my-actual-task-id.json').write_text(json.dumps(t))
+"
+```

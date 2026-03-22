@@ -38,13 +38,7 @@
 - Use `target_group_jid` param in `schedule_task` to run task in another group's context
 - Group JIDs found in `registered_groups` table
 
-## STATE System (Andy's local format)
+## STATE System (v2)
 
-```bash
-python3 -c "
-import json, pathlib
-state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
-p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
-(p / 'task-id.json').write_text(json.dumps(state))
-"
-```
+- State dir: `/workspace/group/state/` — see `/workspace/project/container/skills/state/state.md` for full v2 format and commands
+- Templates: `/workspace/group/state/templates/` — generic-task, group-management, code-change, investigation, scheduled-task

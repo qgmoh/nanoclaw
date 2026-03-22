@@ -97,7 +97,9 @@ The host injects memory files and any active STATE into every container prompt a
 ```bash
 python3 -c "
 import json, pathlib
-state = {'v':1,'t':'task-id','g':'Goal description','s':'','i':'First step','p':{}}
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+state = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal description','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 (p / 'task-id.json').write_text(json.dumps(state, indent=2))
 "

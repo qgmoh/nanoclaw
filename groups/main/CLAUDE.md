@@ -86,8 +86,10 @@ State files live in your writable workspace: `/workspace/group/state/`
 ```bash
 # Create state
 python3 -c "
-import json, pathlib, datetime
-state = {'v':1,'t':'task-id','g':'Goal here','s':'','i':'First step','p':{}}
+import json, pathlib
+from datetime import datetime, timezone
+now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+state = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal here','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 (p / 'task-id.json').write_text(json.dumps(state))
 print('STATE created')
