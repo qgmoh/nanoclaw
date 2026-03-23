@@ -10,6 +10,8 @@ Load this file at every session start. Load other files only when relevant.
 | `projects.md` | Active projects: salad, herv3, nanoclaw | Task involves a known project |
 | `context.md` | Server paths, SSH keys, container mounts, env facts | File/server/clone operations |
 | `contacts.md` | Key people Amy should know | Task involves people or teams |
+| `task-status.md` | herv3/salad active task state file paths + report format | Sending task status reports to Nick |
+| `pipeline.md` | Gated push policy + per-project validation commands | Before any git push |
 
 ## Rules
 

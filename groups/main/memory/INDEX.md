@@ -10,6 +10,8 @@ Load this file at every session start. Load other files only when relevant.
 | `projects.md` | Active projects: salad, herv3, nanoclaw | Task involves a known project |
 | `context.md` | Container paths, database paths, group management facts | Any admin/group/file task |
 | `contacts.md` | Key people Andy should know | Task involves people or teams |
+| `group-management.md` | Add/remove/configure groups, JID lookup, allowlists, scheduling | Any group management task |
+| `pipeline.md` | Gated push policy + per-project validation commands | Before any git push |
 
 ## Rules
 

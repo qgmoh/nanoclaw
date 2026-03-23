@@ -109,70 +109,14 @@ When STATE `i` is set to `"done"`:
 
 ## Gated Push Policy (ALL AGENTS — MANDATORY)
 
-**No agent (Amy, Andy, or Claude Code) may `git push` to any repo without passing validation first.**
-
-This applies to ALL projects: herv3, salad, nanoclaw, and agent state files.
-
-### Pipeline (run in order, stop on any failure)
+No agent may `git push` to any repo without passing validation first. Applies to herv3, salad, nanoclaw, and agent state files.
 
 ```
-1. Implement + commit locally
-2. Run validation (project-specific commands below)  ← GATE: must pass
-3. Security check — review changes for secrets, PHI exposure, auth issues  ← GATE: must pass
-4. git push — ONLY after steps 2 and 3 are green
+commit locally → validate → security check → git push
 ```
 
-**If validation fails:** fix the issue, re-run validation. Never push on a fail. Never skip a gate.
-
-### Per-Project Validation Commands
-
-**herv3** (Django + React/TypeScript):
-```bash
-docker compose -f docker-compose.dev.improved.yml exec web pytest --tb=short -q
-docker compose -f docker-compose.dev.improved.yml exec frontend npx tsc --noEmit
-docker compose -f docker-compose.dev.improved.yml exec frontend npx eslint src --ext .ts,.tsx
-```
-Pass = all tests green + no type errors + no lint errors.
-
-**salad** (FastAPI + Python):
-```bash
-cd /workspace/extra/home/qgmoh/projects/salad && python -m pytest src/tests/ -q --tb=short
-```
-Pass = all tests green.
-
-**nanoclaw** (Node.js + TypeScript):
-```bash
-cd /workspace/extra/home/qgmoh/nanoclaw && npm test && npx tsc --noEmit
-```
-Pass = all tests green + no type errors.
-
-**agent state / STATE files** (JSON only):
-```bash
-python3 -c "
-import json, pathlib, sys
-errors = []
-for f in pathlib.Path('.').rglob('state/*.json'):
-    try:
-        s = json.loads(f.read_text())
-        for k in ['v','t','g','s','i']:
-            if k not in s: errors.append(f'{f}: missing key {k}')
-    except Exception as e:
-        errors.append(f'{f}: {e}')
-print('STATE files OK' if not errors else '\n'.join(errors))
-sys.exit(1 if errors else 0)
-"
-```
-Pass = all STATE files valid JSON with required keys.
-
-### Security Check (all projects)
-
-Before pushing, review the diff for:
-- Hardcoded secrets, tokens, passwords, or API keys
-- PHI fields not using `Encrypted*` types (herv3 only)
-- Auth/permission regressions
-- Unintended debug flags left on
-
-If any security issue found — fix before pushing.
+Full validation commands per project: load `memory/pipeline.md` before any push.
+Security check: no hardcoded secrets, no PHI exposure, no auth regressions, no debug flags left on.
 
 ## Message Formatting
 

@@ -75,38 +75,8 @@ After each step: load state, update `s` (done) and `i` (next), save. When finish
 
 ## Gated Push Policy (MANDATORY)
 
-Amy must NEVER `git push` to any repo without passing validation first.
-
-### Pipeline
+Never push to any repo without validation first.
 ```
-1. Implement + commit locally
-2. Run validation (commands below)   ← GATE: must pass
-3. Security check (diff review)      ← GATE: must pass
-4. git push — only after both gates green
+commit locally → validate → security check → git push
 ```
-
-If validation fails — fix, re-run, never push on a fail.
-
-### Validation Commands (by project)
-
-**herv3:**
-```bash
-cd /workspace/extra/home/qgmoh/projects/herv3
-docker compose -f docker-compose.dev.improved.yml exec web pytest --tb=short -q
-docker compose -f docker-compose.dev.improved.yml exec frontend npx tsc --noEmit
-docker compose -f docker-compose.dev.improved.yml exec frontend npx eslint src --ext .ts,.tsx
-```
-
-**salad:**
-```bash
-cd /workspace/extra/home/qgmoh/projects/salad
-python -m pytest src/tests/ -q --tb=short
-```
-
-**nanoclaw:**
-```bash
-cd /workspace/extra/home/qgmoh/nanoclaw
-npm test && npx tsc --noEmit
-```
-
-**Security check (all projects):** review the diff for hardcoded secrets, PHI exposure, auth regressions, debug flags left on.
+Full commands: load `memory/pipeline.md` before any push.
