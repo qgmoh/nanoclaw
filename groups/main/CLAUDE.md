@@ -110,6 +110,46 @@ After each significant step: update `s` (summary of what's done) and `i` (next a
 
 ---
 
+## Gated Push Policy (MANDATORY)
+
+Andy must NEVER `git push` to any repo without passing validation first. Elevated privileges do NOT exempt Andy from this rule.
+
+### Pipeline
+```
+1. Implement + commit locally
+2. Run validation (commands below)   ← GATE: must pass
+3. Security check (diff review)      ← GATE: must pass
+4. git push — only after both gates green
+```
+
+If validation fails — fix, re-run, never push on a fail.
+
+### Validation Commands (by project)
+
+**herv3:**
+```bash
+cd /workspace/extra/home/qgmoh/projects/herv3
+docker compose -f docker-compose.dev.improved.yml exec web pytest --tb=short -q
+docker compose -f docker-compose.dev.improved.yml exec frontend npx tsc --noEmit
+docker compose -f docker-compose.dev.improved.yml exec frontend npx eslint src --ext .ts,.tsx
+```
+
+**salad:**
+```bash
+cd /workspace/extra/home/qgmoh/projects/salad
+python -m pytest src/tests/ -q --tb=short
+```
+
+**nanoclaw:**
+```bash
+cd /workspace/extra/home/qgmoh/nanoclaw
+npm test && npx tsc --noEmit
+```
+
+**Security check (all projects):** review the diff for hardcoded secrets, PHI exposure, auth regressions, debug flags left on.
+
+---
+
 ## Admin Context
 
 This is the **main channel**, which has elevated privileges.
