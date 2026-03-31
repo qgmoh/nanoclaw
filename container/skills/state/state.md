@@ -23,7 +23,7 @@ The host injects active STATE into every session via `<context>` block. If prese
   "created": "2026-03-20T10:00:00Z",
   "updated": "2026-03-20T10:05:00Z",
   "p": {},
-  "k": {"tot": 0, "in": 0, "out": 0}
+  "k": {"tot": 0, "in": 0, "out": 0, "started_at": "ISO"}
 }
 ```
 
@@ -53,7 +53,7 @@ python3 -c "
 import json, pathlib
 from datetime import datetime, timezone
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
+s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0,'started_at':now}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 (p / 'task-id.json').write_text(json.dumps(s))
 print('STATE created')

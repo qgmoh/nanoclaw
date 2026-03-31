@@ -42,7 +42,7 @@ python3 -c "
 import json, pathlib
 from datetime import datetime, timezone
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-state = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
+state = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0,'started_at':now}}
 (pathlib.Path('/workspace/group/state') / 'task-id.json').write_text(json.dumps(state))
 "
 ```

@@ -1,0 +1,1 @@
+{"v":2,"t":"investigate-TASK_ID","proj":"nanoclaw","g":"INVESTIGATION_GOAL","s":"","i":"Check logs and current state to reproduce the issue","created":"","updated":"","p":{"type":"investigation","symptom":"SYMPTOM_HERE","suspected_cause":"","confirmed_cause":"","fix_applied":""},"k":{"tot":0,"in":0,"out":0,"started_at":""}}

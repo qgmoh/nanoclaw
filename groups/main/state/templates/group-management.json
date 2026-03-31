@@ -1,0 +1,1 @@
+{"v":2,"t":"group-TASK_ID","proj":"nanoclaw","g":"GROUP_GOAL","s":"","i":"Query registered_groups table to get current state","created":"","updated":"","p":{"type":"group-management","group_name":"GROUP_NAME","group_jid":"","action":"register|remove|modify"},"k":{"tot":0,"in":0,"out":0,"started_at":""}}

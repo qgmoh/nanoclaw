@@ -62,8 +62,9 @@ Full guide: read the `state` skill (`/state`)
 
 ```bash
 python3 -c "
-import json, pathlib
-state = {'v':1,'t':'my-task','g':'Goal here','s':'','i':'First step','p':{}}
+import json, pathlib, datetime
+now = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+state = {'v':2,'t':'my-task','proj':'salad','g':'Goal here','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0,'started_at':now}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 (p / 'my-task.json').write_text(json.dumps(state, indent=2))
 "

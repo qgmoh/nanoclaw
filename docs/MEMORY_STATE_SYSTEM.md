@@ -108,7 +108,7 @@ STATE is a compact JSON file. Each text field has a 300-character limit. **v1 fi
   "p": {
     "optional": "extra key-value context"
   },
-  "k": {"tot": 0, "in": 0, "out": 0}
+  "k": {"tot": 0, "in": 0, "out": 0, "started_at": "ISO"}
 }
 ```
 
@@ -123,7 +123,7 @@ STATE is a compact JSON file. Each text field has a 300-character limit. **v1 fi
 | `created` | ISO timestamp, set once at creation | — |
 | `updated` | ISO timestamp, update on every save | — |
 | `p` | Extra params dict | flexible |
-| `k` | Token counter — agent updates each step | `tot`, `in`, `out` |
+| `k` | Token counter — agent updates each step | `tot`, `in`, `out`, `started_at` |
 
 **Token counter (`k`):** The agent increments `k.in` (input tokens), `k.out` (output tokens), and `k.tot` (total) at each step. This is stored in STATE and never sent to Claude — strip `k` before injecting into prompts if context size is a concern, but the cost is only ~10 tokens.
 
@@ -140,7 +140,7 @@ python3 -c "
 import json, pathlib
 from datetime import datetime, timezone
 now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal here','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0}}
+s = {'v':2,'t':'task-id','proj':'nanoclaw','g':'Goal here','s':'','i':'First step','created':now,'updated':now,'p':{},'k':{'tot':0,'in':0,'out':0,'started_at':now}}
 p = pathlib.Path('/workspace/group/state'); p.mkdir(exist_ok=True)
 (p / 'task-id.json').write_text(json.dumps(s))
 "

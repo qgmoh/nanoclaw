@@ -38,6 +38,8 @@ groups/main/state/*
 groups/whatsapp_main/state/*
 !groups/main/state/.gitkeep
 !groups/whatsapp_main/state/.gitkeep
+!groups/main/state/templates/
+!groups/whatsapp_main/state/templates/
 
 # Secrets
 *.keys.json

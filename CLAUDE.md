@@ -33,7 +33,7 @@ Single Node.js process, skill-based channel system. Channels (WhatsApp, Telegram
 - Each group: `groups/{name}/memory/` + `groups/{name}/state/`
 - Host auto-injects `INDEX.md` + active STATE into every container prompt via `src/memory-loader.ts`
 - Full spec: `docs/MEMORY_STATE_SYSTEM.md`
-- STATE v2 format: `{'v':2,'t':'id','proj':'nanoclaw','g':'goal','s':'done','i':'next','created':ISO,'updated':ISO,'p':{},'k':{'tot':0,'in':0,'out':0}}`
+- STATE v2 format: `{'v':2,'t':'id','proj':'nanoclaw','g':'goal','s':'done','i':'next','created':ISO,'updated':ISO,'p':{},'k':{'tot':0,'in':0,'out':0,'started_at':ISO}}`
 
 ## Gated Push Policy
 

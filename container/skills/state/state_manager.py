@@ -51,7 +51,7 @@ def init(task_id: str, goal: str, proj: str = "nanoclaw") -> dict:
         "created": now_iso(),
         "updated": now_iso(),
         "p": {},
-        "k": {"tot": 0, "in": 0, "out": 0},
+        "k": {"tot": 0, "in": 0, "out": 0, "started_at": now_iso()},
     }
     save(state)
     print(f"STATE created: {state_path(task_id)}")

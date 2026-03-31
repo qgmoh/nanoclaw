@@ -1,0 +1,1 @@
+{"v":2,"t":"schedule-TASK_ID","proj":"nanoclaw","g":"SCHEDULE_GOAL","s":"","i":"Confirm target group JID and schedule type before creating","created":"","updated":"","p":{"type":"scheduled-task","target_group_jid":"","schedule_type":"cron|interval|once","schedule_value":"","prompt":""},"k":{"tot":0,"in":0,"out":0,"started_at":""}}
